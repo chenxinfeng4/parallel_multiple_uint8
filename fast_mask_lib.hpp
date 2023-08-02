@@ -1,13 +1,14 @@
 //g++ -mavx2 fast_simd.cpp 
+
 #include <iostream>
 #include <immintrin.h>
 
 void multiply_cpp_avx2(char* img_NHW_ptr, bool* mask_NHW_ptr, 
                   char* output_NHW_ptr, int size){
     __m256i one = _mm256_set1_epi8(1);
-    __m256i xor_mask = _mm256_set1_epi8(0xff);
+    __m256i xor_mask = _mm256_set1_epi8(static_cast<char>(0xff));
 
-    int width = 256 / 8; // =32 uint8 per batch
+    const int width = 256 / 8; // =32 uint8 per batch
     size_t batch = size / width;
 
     uint8_t (* vectorIMG)[width]   = reinterpret_cast<uint8_t(*)[width]>(img_NHW_ptr);
@@ -16,14 +17,14 @@ void multiply_cpp_avx2(char* img_NHW_ptr, bool* mask_NHW_ptr,
 
     for(size_t i =0; i< batch; ++i){
         // 使用 AVX2 指令进行矢量操作
-        __m256i vec_mask = _mm256_loadu_si256((__m256i_u*) vectorMASK[i]);
-        __m256i vec_img  = _mm256_loadu_si256((__m256i_u*) vectorIMG[i]);
+        __m256i vec_mask = _mm256_loadu_si256((__m256i*) vectorMASK[i]);
+        __m256i vec_img  = _mm256_loadu_si256((__m256i*) vectorIMG[i]);
         __m256i b1 = _mm256_sub_epi8(vec_mask, one);
         __m256i b2 = _mm256_xor_si256(b1, xor_mask); //0 -> 0; 1 -> 0xFF
         // __m256i resultVector = _mm256_and_si256(vec_img, vec_mask);  为了性能测试
         __m256i resultVector = _mm256_and_si256(vec_img, b2); 
         // 将结果存储到结果数组中
-        _mm256_storeu_si256((__m256i_u*) vectorResult[i], resultVector);
+        _mm256_storeu_si256((__m256i*) vectorResult[i], resultVector);
     }
 
     // 暂时不考虑边角料，让数据恰好填充 batch
@@ -39,9 +40,9 @@ void multiply_cpp_avx512(char* img_NHW_ptr, bool* mask_NHW_ptr,
                   char* output_NHW_ptr, int size)
 {
     __m512i one = _mm512_set1_epi8(1);
-    __m512i xor_mask = _mm512_set1_epi8(0xff);
+    __m512i xor_mask = _mm512_set1_epi8(static_cast<char>(0xff));
 
-    int width = 512 / 8; // =64 uint8 per batch
+    const int width = 512 / 8; // =64 uint8 per batch
     size_t batch = size / width;
 
     uint8_t (* vectorIMG)[width]   = reinterpret_cast<uint8_t(*)[width]>(img_NHW_ptr);
@@ -74,13 +75,13 @@ void multiply_cpp_forloop(char* img_NHW_ptr, bool* mask_NHW_ptr,
     uint8_t * uptrIMG = reinterpret_cast<uint8_t*>(img_NHW_ptr);
     uint8_t * uptrMASK = reinterpret_cast<uint8_t*>(mask_NHW_ptr);
     uint8_t * uptrResult = reinterpret_cast<uint8_t*>(output_NHW_ptr);
-    for(size_t i=0; i<size; ++i){
+    for(int i=0; i<size; ++i){
         uptrResult[i] = uptrIMG[i] * uptrMASK[i];
     }
 }
 
-
-#define MULTIPLY_BY  multiply_cpp_avx512
+//multiply_cpp_forloop multiply_cpp_avx2 multiply_cpp_avx512
+#define MULTIPLY_BY  multiply_cpp_avx2
 void multiply_cpp(char* img_NHW_ptr, bool* mask_KNHW_ptr, char* output_ptr,
                    int K, int N, int H, int W)
 {

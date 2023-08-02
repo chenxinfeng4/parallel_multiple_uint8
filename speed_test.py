@@ -19,5 +19,5 @@ print('top -p ', os.getpid())
 for _ in tqdm.trange(5000):
     out_np_KNHW = img_NHW * mask_KNHW
 
-for _ in tqdm.trange(5000):
+for _ in tqdm.trange(1000):
     out_simd_KNHW = fast_mask.multiply_py(img_NHW, mask_KNHW)
