@@ -12,16 +12,6 @@ python setup.py build_ext --inplace
 python speed_test.py
 ```
 
-## 选项：切换不同的乘法版本
-打开`fast_mask_lib.hpp`. 修改配置后执行 `python setup.py build_ext --inplace` 。
-```cpp
-multiply_cpp_forloop  FOR 循环
-multiply_cpp_avx512   AVX512
-multiply_cpp_avx2     AVX256
-
-#define MULTIPLY_BY  multiply_cpp_***
-
-```
 
 ## 选项：是否使用多线程
 打开`fast_mask_lib.hpp`. 修改配置后执行 `python setup.py build_ext --inplace` 。
