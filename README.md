@@ -19,8 +19,7 @@ multiply_cpp_forloop  FOR 循环
 multiply_cpp_avx512   AVX512
 multiply_cpp_avx2     AVX256
 
-默认使用
-#define MULTIPLY_BY  multiply_cpp_avx512
+#define MULTIPLY_BY  multiply_cpp_***
 
 ```
 
