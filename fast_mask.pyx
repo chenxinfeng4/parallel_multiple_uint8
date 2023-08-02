@@ -6,10 +6,10 @@ from libcpp cimport bool
 cdef extern from "fast_mask_lib.hpp":
     # 导入C++中的函数声明
     void multiply_cpp(char* img_NHW_ptr, bool* mask_KNHW_ptr, char* output_ptr,
-                   int K, int N, int H, int W)
+                   int K, int N, int H, int W, int mode)
 
 
-def multiply_py(np.ndarray[uint8_t, ndim=3] img_NHW, np.ndarray[char, ndim=4] mask_KNHW):
+def multiply_py(np.ndarray[uint8_t, ndim=3] img_NHW, np.ndarray[char, ndim=4] mask_KNHW, mode:int = 0):
     # 提取2D数组的指针列表
     cdef bool* mask_KNHW_ptr = <bool*> mask_KNHW.data
     cdef char* img_NHW_ptr = <char*> img_NHW.data
@@ -23,6 +23,6 @@ def multiply_py(np.ndarray[uint8_t, ndim=3] img_NHW, np.ndarray[char, ndim=4] ma
 
     # 调用C++函数处理数组
     multiply_cpp(img_NHW_ptr, mask_KNHW_ptr,  output_ptr,
-                  K, N, H, W)
+                  K, N, H, W, mode)
     return output
     

@@ -83,15 +83,21 @@ void multiply_cpp_forloop(char* img_NHW_ptr, bool* mask_NHW_ptr,
 //multiply_cpp_forloop multiply_cpp_avx2 multiply_cpp_avx512
 #define MULTIPLY_BY  multiply_cpp_avx2
 void multiply_cpp(char* img_NHW_ptr, bool* mask_KNHW_ptr, char* output_ptr,
-                   int K, int N, int H, int W)
+                   int K, int N, int H, int W, int mode)
 {
     int size = N*H*W;
+    auto multiply_by = multiply_cpp_forloop;
+    if (mode == 1) {
+        multiply_by = multiply_cpp_avx2;
+    } else if (mode == 2) {
+        multiply_by = multiply_cpp_avx512;
+    }
     // 开启 openmp 多线程加速
     // #pragma omp parallel for num_threads(3)
     for(int k=0; k<K; k++){
         char* output_NHW_ptr = &output_ptr[k*size];
         bool* mask_NHW_ptr = &mask_KNHW_ptr[k*size];
-        MULTIPLY_BY(img_NHW_ptr, mask_NHW_ptr, 
+        multiply_by(img_NHW_ptr, mask_NHW_ptr, 
                   output_NHW_ptr, size);
     }
 }
