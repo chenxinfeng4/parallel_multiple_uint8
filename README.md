@@ -30,3 +30,17 @@ void multiply_cpp(char* img_NHW_ptr, bool* mask_KNHW_ptr, char* output_ptr,
     }
 }
 ```
+
+
+## RGB24 的数据处理如何加速？
+---
+RGB24 的数据处理过程总， HWC 的格式处理特别慢。是否有合适的 SIMD 加速？
+```python
+# 3274.33it/s
+for _ in tqdm.trange(5000):
+    out2 = img_CHW * mask_HW
+
+# 217.13it/s  非常慢
+for _ in tqdm.trange(5000):
+    out3 = img_HWC * mask_HW[..., None]
+```

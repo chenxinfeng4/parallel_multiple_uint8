@@ -1,3 +1,4 @@
+# python speed_test.py
 # %%
 import numpy as np
 import tqdm
